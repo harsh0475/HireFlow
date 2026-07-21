@@ -21,6 +21,11 @@ spring:
       hibernate:
         format_sql: true
 
+jwt:
+  secret: 9f6b3c4e2a8d1f7b5c9e4a6d8f1b3c7e5a9d2f6b8c1e4a7d
+  expiration: 86400000          
+  refresh-expiration: 604800000 
+
 logging:
   level:
     org.springframework.security: INFO
