@@ -8,6 +8,12 @@ import com.hireflow.dto.response.PageResponse;
 import com.hireflow.entity.enums.Role;
 import com.hireflow.security.UserPrincipal;
 import com.hireflow.service.JobService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -21,14 +27,30 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/jobs")
 @RequiredArgsConstructor
+@Tag(
+        name = "Job Management",
+        description = "Endpoints for creating, updating, searching and managing job postings."
+)
+@SecurityRequirement(name = "Bearer Authentication")
 public class JobController {
 
     private final JobService jobService;
 
+    @Operation(
+            summary = "Create a job",
+            description = "Creates a new job posting. Accessible to ADMIN and RECRUITER roles."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Job created successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Validation failed", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Access denied", content = @Content)
+    })
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER')")
     public ResponseEntity<ApiResponse<JobResponse>> createJob(
             @Valid @RequestBody JobRequest request,
+            @Parameter(hidden = true)
             @AuthenticationPrincipal UserPrincipal principal) {
 
         JobResponse job = jobService.createJob(request, principal.getUser().getId());
@@ -41,11 +63,24 @@ public class JobController {
                         .build());
     }
 
+    @Operation(
+            summary = "Update a job",
+            description = "Updates an existing job posting. Recruiters can update their own jobs, while admins can update any job."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Job updated successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Validation failed", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Job not found", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Access denied", content = @Content)
+    })
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER')")
     public ResponseEntity<ApiResponse<JobResponse>> updateJob(
+            @Parameter(description = "Unique job ID", example = "1")
             @PathVariable Long id,
             @Valid @RequestBody JobRequest request,
+            @Parameter(hidden = true)
             @AuthenticationPrincipal UserPrincipal principal) {
 
         boolean isAdmin = principal.getUser().getRole() == Role.ADMIN;
@@ -61,9 +96,20 @@ public class JobController {
         );
     }
 
+    @Operation(
+            summary = "Get job by ID",
+            description = "Returns complete details of a specific job posting."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Job retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Job not found", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<JobResponse>> getJob(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<JobResponse>> getJob(
+            @Parameter(description = "Unique job ID", example = "1")
+            @PathVariable Long id) {
 
         JobResponse job = jobService.getJobById(id);
 
@@ -76,11 +122,22 @@ public class JobController {
         );
     }
 
+    @Operation(
+            summary = "Search jobs",
+            description = "Returns a paginated list of jobs using the supplied filter criteria."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Jobs retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<PageResponse<JobResponse>>> getAllJobs(
+            @Parameter(description = "Job search filters")
             JobFilterRequest filter,
-            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
+            @Parameter(description = "Pagination and sorting information")
+            @PageableDefault(size = 10, sort = "createdAt")
+            Pageable pageable) {
 
         PageResponse<JobResponse> jobs = jobService.getAllJobs(filter, pageable);
 
@@ -93,11 +150,23 @@ public class JobController {
         );
     }
 
+    @Operation(
+            summary = "Get jobs by company",
+            description = "Returns all job postings for a specific company."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Jobs retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Company not found", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+    })
     @GetMapping("/company/{companyId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<PageResponse<JobResponse>>> getJobsByCompany(
+            @Parameter(description = "Unique company ID", example = "1")
             @PathVariable Long companyId,
-            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
+            @Parameter(description = "Pagination and sorting information")
+            @PageableDefault(size = 10, sort = "createdAt")
+            Pageable pageable) {
 
         PageResponse<JobResponse> jobs = jobService.getJobsByCompany(companyId, pageable);
 
@@ -110,11 +179,23 @@ public class JobController {
         );
     }
 
+    @Operation(
+            summary = "Get my jobs",
+            description = "Returns all job postings created by the authenticated recruiter. Admins may also access this endpoint."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Jobs retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Access denied", content = @Content)
+    })
     @GetMapping("/my-jobs")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER')")
     public ResponseEntity<ApiResponse<PageResponse<JobResponse>>> getMyJobs(
+            @Parameter(hidden = true)
             @AuthenticationPrincipal UserPrincipal principal,
-            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
+            @Parameter(description = "Pagination and sorting information")
+            @PageableDefault(size = 10, sort = "createdAt")
+            Pageable pageable) {
 
         PageResponse<JobResponse> jobs = jobService.getJobsByRecruiter(principal.getUser().getId(), pageable);
 
@@ -127,10 +208,22 @@ public class JobController {
         );
     }
 
+    @Operation(
+            summary = "Delete a job",
+            description = "Deletes a job posting. Recruiters may delete their own jobs, while admins may delete any job."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Job deleted successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Job not found", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Access denied", content = @Content)
+    })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER')")
     public ResponseEntity<ApiResponse<Void>> deleteJob(
+            @Parameter(description = "Unique job ID", example = "1")
             @PathVariable Long id,
+            @Parameter(hidden = true)
             @AuthenticationPrincipal UserPrincipal principal) {
 
         boolean isAdmin = principal.getUser().getRole() == Role.ADMIN;
