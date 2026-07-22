@@ -25,4 +25,9 @@ public class JwtProperties {
      * Refresh token expiration time in milliseconds.
      */
     private long refreshExpiration;
+
+    /**
+     * Password reset token expiration time in milliseconds.
+     */
+    private long passwordResetExpiration;
 }

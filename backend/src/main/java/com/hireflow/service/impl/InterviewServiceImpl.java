@@ -7,6 +7,7 @@ import com.hireflow.dto.response.InterviewResponse;
 import com.hireflow.dto.response.PageResponse;
 import com.hireflow.entity.Application;
 import com.hireflow.entity.Interview;
+import com.hireflow.entity.User;
 import com.hireflow.entity.enums.ApplicationStatus;
 import com.hireflow.entity.enums.InterviewStatus;
 import com.hireflow.exception.BadRequestException;
@@ -15,6 +16,7 @@ import com.hireflow.exception.UnauthorizedException;
 import com.hireflow.mapper.InterviewMapper;
 import com.hireflow.repository.ApplicationRepository;
 import com.hireflow.repository.InterviewRepository;
+import com.hireflow.service.EmailService;
 import com.hireflow.service.InterviewService;
 import com.hireflow.specification.InterviewSpecification;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class InterviewServiceImpl implements InterviewService {
     private final InterviewRepository interviewRepository;
     private final ApplicationRepository applicationRepository;
     private final InterviewMapper interviewMapper;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -60,6 +63,8 @@ public class InterviewServiceImpl implements InterviewService {
         application.setStatus(ApplicationStatus.INTERVIEW_SCHEDULED);
         applicationRepository.save(application);
 
+        notifyInterviewScheduled(interview);
+
         return interviewMapper.toResponse(interview);
     }
 
@@ -81,6 +86,8 @@ public class InterviewServiceImpl implements InterviewService {
         interview.setStatus(InterviewStatus.RESCHEDULED);
 
         interview = interviewRepository.save(interview);
+
+        notifyInterviewUpdated(interview);
 
         return interviewMapper.toResponse(interview);
     }
@@ -122,6 +129,8 @@ public class InterviewServiceImpl implements InterviewService {
 
         interview = interviewRepository.save(interview);
 
+        notifyInterviewCancelled(interview);
+
         return interviewMapper.toResponse(interview);
     }
 
@@ -161,5 +170,52 @@ public class InterviewServiceImpl implements InterviewService {
         if (!isAdmin && !interview.getApplication().getJob().getCreatedBy().getId().equals(recruiterId)) {
             throw new UnauthorizedException("You are not allowed to modify this interview.");
         }
+    }
+
+    private void notifyInterviewScheduled(Interview interview) {
+
+        Application application = interview.getApplication();
+        User candidate = application.getCandidate();
+
+        emailService.sendInterviewScheduledEmail(
+                candidate.getEmail(),
+                candidate.getFirstName(),
+                application.getJob().getTitle(),
+                application.getJob().getCompany().getName(),
+                interview.getInterviewDate(),
+                interview.getInterviewTime(),
+                interview.getRound(),
+                interview.getMeetingLink()
+        );
+    }
+
+    private void notifyInterviewUpdated(Interview interview) {
+
+        Application application = interview.getApplication();
+        User candidate = application.getCandidate();
+
+        emailService.sendInterviewUpdatedEmail(
+                candidate.getEmail(),
+                candidate.getFirstName(),
+                application.getJob().getTitle(),
+                application.getJob().getCompany().getName(),
+                interview.getInterviewDate(),
+                interview.getInterviewTime(),
+                interview.getRound(),
+                interview.getMeetingLink()
+        );
+    }
+
+    private void notifyInterviewCancelled(Interview interview) {
+
+        Application application = interview.getApplication();
+        User candidate = application.getCandidate();
+
+        emailService.sendInterviewCancelledEmail(
+                candidate.getEmail(),
+                candidate.getFirstName(),
+                application.getJob().getTitle(),
+                application.getJob().getCompany().getName()
+        );
     }
 }

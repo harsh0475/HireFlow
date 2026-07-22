@@ -17,6 +17,7 @@ import com.hireflow.repository.ApplicationRepository;
 import com.hireflow.repository.JobRepository;
 import com.hireflow.repository.UserRepository;
 import com.hireflow.service.ApplicationService;
+import com.hireflow.service.EmailService;
 import com.hireflow.specification.ApplicationSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
     private final ApplicationMapper applicationMapper;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -118,6 +120,8 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         application = applicationRepository.save(application);
 
+        notifyStatusChanged(application);
+
         return applicationMapper.toResponse(application);
     }
 
@@ -174,5 +178,18 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .map(applicationMapper::toResponse);
 
         return PageResponse.from(page);
+    }
+
+    private void notifyStatusChanged(Application application) {
+
+        User candidate = application.getCandidate();
+
+        emailService.sendApplicationStatusChangedEmail(
+                candidate.getEmail(),
+                candidate.getFirstName(),
+                application.getJob().getTitle(),
+                application.getJob().getCompany().getName(),
+                application.getStatus().name()
+        );
     }
 }
