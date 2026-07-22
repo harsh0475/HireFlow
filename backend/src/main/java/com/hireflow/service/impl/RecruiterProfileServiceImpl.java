@@ -1,6 +1,7 @@
 package com.hireflow.service.impl;
 
 import com.hireflow.dto.request.RecruiterProfileRequest;
+import com.hireflow.dto.response.PageResponse;
 import com.hireflow.dto.response.RecruiterProfileResponse;
 import com.hireflow.entity.Company;
 import com.hireflow.entity.RecruiterProfile;
@@ -12,6 +13,8 @@ import com.hireflow.repository.RecruiterProfileRepository;
 import com.hireflow.repository.UserRepository;
 import com.hireflow.service.RecruiterProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,5 +87,14 @@ public class RecruiterProfileServiceImpl implements RecruiterProfileService {
                         new ResourceNotFoundException("Recruiter profile not found."));
 
         return recruiterProfileMapper.toResponse(profile);
+    }
+
+    @Override
+    public PageResponse<RecruiterProfileResponse> getAllRecruiters(Pageable pageable) {
+
+        Page<RecruiterProfileResponse> page = recruiterProfileRepository.findAll(pageable)
+                .map(recruiterProfileMapper::toResponse);
+
+        return PageResponse.from(page);
     }
 }

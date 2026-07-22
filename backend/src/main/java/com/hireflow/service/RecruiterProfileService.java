@@ -1,7 +1,9 @@
 package com.hireflow.service;
 
 import com.hireflow.dto.request.RecruiterProfileRequest;
+import com.hireflow.dto.response.PageResponse;
 import com.hireflow.dto.response.RecruiterProfileResponse;
+import org.springframework.data.domain.Pageable;
 
 public interface RecruiterProfileService {
 
@@ -10,4 +12,6 @@ public interface RecruiterProfileService {
     RecruiterProfileResponse getMyProfile(Long userId);
 
     RecruiterProfileResponse getProfileByUserId(Long userId);
+
+    PageResponse<RecruiterProfileResponse> getAllRecruiters(Pageable pageable);
 }

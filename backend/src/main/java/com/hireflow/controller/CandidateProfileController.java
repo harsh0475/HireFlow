@@ -3,10 +3,13 @@ package com.hireflow.controller;
 import com.hireflow.dto.request.CandidateProfileRequest;
 import com.hireflow.dto.response.ApiResponse;
 import com.hireflow.dto.response.CandidateProfileResponse;
+import com.hireflow.dto.response.PageResponse;
 import com.hireflow.security.UserPrincipal;
 import com.hireflow.service.CandidateProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -65,6 +68,23 @@ public class CandidateProfileController {
                         .success(true)
                         .message("Candidate profile fetched successfully.")
                         .data(profile)
+                        .build()
+        );
+    }
+
+    // ---- NEW: View Candidates ----
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'RECRUITER')")
+    public ResponseEntity<ApiResponse<PageResponse<CandidateProfileResponse>>> getAllCandidates(
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+
+        PageResponse<CandidateProfileResponse> candidates = candidateProfileService.getAllCandidates(pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse.<PageResponse<CandidateProfileResponse>>builder()
+                        .success(true)
+                        .message("Candidates fetched successfully.")
+                        .data(candidates)
                         .build()
         );
     }

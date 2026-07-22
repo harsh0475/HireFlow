@@ -2,6 +2,7 @@ package com.hireflow.service.impl;
 
 import com.hireflow.dto.request.CandidateProfileRequest;
 import com.hireflow.dto.response.CandidateProfileResponse;
+import com.hireflow.dto.response.PageResponse;
 import com.hireflow.entity.CandidateProfile;
 import com.hireflow.entity.User;
 import com.hireflow.exception.ResourceNotFoundException;
@@ -10,6 +11,8 @@ import com.hireflow.repository.CandidateProfileRepository;
 import com.hireflow.repository.UserRepository;
 import com.hireflow.service.CandidateProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,5 +67,14 @@ public class CandidateProfileServiceImpl implements CandidateProfileService {
                         new ResourceNotFoundException("Candidate profile not found."));
 
         return candidateProfileMapper.toResponse(profile);
+    }
+
+    @Override
+    public PageResponse<CandidateProfileResponse> getAllCandidates(Pageable pageable) {
+
+        Page<CandidateProfileResponse> page = candidateProfileRepository.findAll(pageable)
+                .map(candidateProfileMapper::toResponse);
+
+        return PageResponse.from(page);
     }
 }
