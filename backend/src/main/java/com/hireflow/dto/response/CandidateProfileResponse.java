@@ -21,6 +21,7 @@ public class CandidateProfileResponse {
     private String lastName;
     private String email;
     private String resumeUrl;
+    private String profilePictureUrl;
     private Set<String> skills;
     private String experience;
     private String education;

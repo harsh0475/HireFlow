@@ -28,4 +28,7 @@ public class RecruiterProfile extends BaseEntity {
 
     @Column(length = 255)
     private String linkedIn;
+
+    @Column(length = 255)
+    private String profilePictureUrl;
 }

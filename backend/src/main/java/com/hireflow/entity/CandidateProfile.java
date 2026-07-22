@@ -22,6 +22,9 @@ public class CandidateProfile extends BaseEntity {
     @Column(length = 255)
     private String resumeUrl;
 
+    @Column(length = 255)
+    private String profilePictureUrl;
+
     @ElementCollection
     @CollectionTable(name = "candidate_skills", joinColumns = @JoinColumn(name = "candidate_profile_id"))
     @Column(name = "skill", length = 100)

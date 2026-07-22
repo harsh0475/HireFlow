@@ -26,4 +26,6 @@ public class RecruiterProfileResponse {
     private String phone;
 
     private String linkedIn;
+
+    private String profilePictureUrl;
 }
