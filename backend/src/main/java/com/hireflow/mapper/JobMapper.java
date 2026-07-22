@@ -10,7 +10,11 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
-@Mapper(componentModel = "spring", uses = { CompanyMapper.class })
+@Mapper(
+    componentModel = "spring",
+    uses = {CompanyMapper.class},
+    builder = @org.mapstruct.Builder(disableBuilder = true)
+)
 public interface JobMapper {
 
     @Mapping(target = "id", ignore = true)
