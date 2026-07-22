@@ -6,16 +6,16 @@ spring:
     name: hireflow
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/hireflow_db
-    username: postgres
-    password: Qwerty123
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/hireflow_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:Qwerty123}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${DDL_AUTO:update}
 
-    show-sql: true
+    show-sql: ${SHOW_SQL:true}
 
     properties:
       hibernate:
@@ -31,6 +31,7 @@ spring:
     port: 587
     username: ${MAIL_USERNAME:your-email@gmail.com}
     password: ${MAIL_PASSWORD:your-app-password}
+
     properties:
       mail:
         smtp:
@@ -48,25 +49,64 @@ jwt:
 
 app:
   frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:3000}
+
   mail:
     from: ${MAIL_FROM:no-reply@hireflow.com}
     from-name: HireFlow
+
   file:
     base-path: ${FILE_STORAGE_BASE_PATH:uploads}
     base-url: /api/files/serve
+
     max-size:
-      resume: 5242880   # 5 MB
-      image: 2097152    # 2 MB
+      resume: 5242880
+      image: 2097152
+
     allowed-extensions:
       resume: pdf,doc,docx
       image: jpg,jpeg,png,webp
 
+management:
+
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  endpoint:
+    health:
+      show-details: never
+
+      probes:
+        enabled: true
+
+  health:
+    livenessstate:
+      enabled: true
+
+    readinessstate:
+      enabled: true
+
+    mail:
+      enabled: false
+
+  info:
+    env:
+      enabled: true
+
+info:
+  application:
+    name: HireFlow
+    description: Recruitment Management System
+    version: 0.0.1
+
 logging:
   level:
-    org.springframework.security: INFO
-    org.hibernate.SQL: DEBUG
+    org.springframework.security: ${SECURITY_LOG_LEVEL:INFO}
+    org.hibernate.SQL: ${HIBERNATE_SQL_LOG_LEVEL:DEBUG}
 
 springdoc:
+
   api-docs:
     path: /api-docs
 
