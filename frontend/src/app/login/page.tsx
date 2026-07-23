@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 
 import AuthService from "@/services/auth.service";
 import { useAuth } from "@/hooks/use-auth";
+import { getDefaultRoute } from "@/lib/auth-redirect";
 
 import {
   LoginFormData,
@@ -54,18 +55,10 @@ export default function LoginPage() {
 
       toast.success("Login successful.");
 
-      switch (response.data.data.user.role) {
-        case "ADMIN":
-          router.replace("/admin");
-          break;
-
-        case "RECRUITER":
-          router.replace("/recruiter");
-          break;
-
-        default:
-          router.replace("/candidate");
-      }
+      router.replace(
+        getDefaultRoute(response.data.data.user.role)
+      );
+      
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
 

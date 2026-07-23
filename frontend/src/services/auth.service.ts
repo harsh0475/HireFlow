@@ -2,6 +2,8 @@ import api from "@/lib/axios";
 
 import { API } from "@/constants/api";
 
+import { authStore } from "@/store/auth-store";
+
 import { ApiResponse } from "@/types/api";
 
 import {
@@ -20,7 +22,7 @@ const AuthService = {
   },
 
   register(data: RegisterRequest) {
-    return api.post<ApiResponse<void>>(
+    return api.post<ApiResponse<LoginResponse>>(
       API.AUTH.REGISTER,
       data
     );
@@ -35,7 +37,19 @@ const AuthService = {
     );
   },
 
-  logout(refreshToken: string) {
+  logout() {
+    const refreshToken = authStore.getRefreshToken();
+
+    if (!refreshToken) {
+      return Promise.resolve({
+        data: {
+          success: true,
+          message: "Already logged out.",
+          data: undefined,
+        },
+      });
+    }
+
     return api.post<ApiResponse<void>>(
       API.AUTH.LOGOUT,
       {
@@ -61,7 +75,7 @@ const AuthService = {
 
   resetPassword(
     token: string,
-    newPassword: string,
+    newPassword: string
   ) {
     return api.post<ApiResponse<void>>(
       API.AUTH.RESET_PASSWORD,

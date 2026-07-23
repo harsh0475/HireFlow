@@ -22,6 +22,9 @@ import { Input } from "@/components/ui/input";
 
 import AuthService from "@/services/auth.service";
 
+import { useAuth } from "@/hooks/use-auth";
+import { getDefaultRoute } from "@/lib/auth-redirect";
+
 import {
   registerSchema,
   RegisterFormData,
@@ -29,6 +32,8 @@ import {
 
 export default function RegisterPage() {
   const router = useRouter();
+
+  const { login } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -45,18 +50,21 @@ export default function RegisterPage() {
 
   async function onSubmit(data: RegisterFormData) {
     try {
-      await AuthService.register({
+      const response = await AuthService.register({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
         password: data.password,
       });
 
-      toast.success(
-        "Registration successful. Please login."
-      );
+      login(response.data.data);
 
-      router.replace("/login");
+      toast.success("Welcome to HireFlow!");
+
+      router.replace(
+        getDefaultRoute(response.data.data.user.role)
+      );
+      
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
 
@@ -88,6 +96,7 @@ export default function RegisterPage() {
                 placeholder="First Name"
                 {...register("firstName")}
               />
+
               {errors.firstName && (
                 <p className="mt-1 text-sm text-destructive">
                   {errors.firstName.message}
@@ -100,6 +109,7 @@ export default function RegisterPage() {
                 placeholder="Last Name"
                 {...register("lastName")}
               />
+
               {errors.lastName && (
                 <p className="mt-1 text-sm text-destructive">
                   {errors.lastName.message}
@@ -113,6 +123,7 @@ export default function RegisterPage() {
                 placeholder="Email"
                 {...register("email")}
               />
+
               {errors.email && (
                 <p className="mt-1 text-sm text-destructive">
                   {errors.email.message}
