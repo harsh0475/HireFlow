@@ -1,24 +1,29 @@
 import { authStore } from "@/store/auth-store";
+import { User } from "@/types/auth";
 
 export const TokenStorage = {
-  getAccessToken() {
+  getAccessToken(): string | null {
     return authStore.getAccessToken();
   },
 
-  getRefreshToken() {
+  getRefreshToken(): string | null {
     return authStore.getRefreshToken();
   },
 
-  getUser() {
+  getUser(): User | null {
     return authStore.getUser();
   },
 
   setSession(
     accessToken: string,
     refreshToken: string,
-    user: Parameters<typeof authStore.setSession>[2]
+    user: User
   ) {
-    authStore.setSession(accessToken, refreshToken, user);
+    authStore.setSession(
+      accessToken,
+      refreshToken,
+      user
+    );
   },
 
   clear() {
