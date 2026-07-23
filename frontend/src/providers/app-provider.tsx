@@ -6,18 +6,26 @@ import { Toaster } from "sonner";
 import QueryProvider from "./query-provider";
 import ThemeProvider from "./theme-provider";
 
-interface AppProviderProps {
+import { AuthProvider } from "@/features/auth/auth-context";
+
+interface Props {
   children: ReactNode;
 }
 
 export default function AppProvider({
   children,
-}: AppProviderProps) {
+}: Props) {
   return (
     <ThemeProvider>
       <QueryProvider>
-        {children}
-        <Toaster richColors position="top-right" />
+        <AuthProvider>
+          {children}
+
+          <Toaster
+            richColors
+            position="top-right"
+          />
+        </AuthProvider>
       </QueryProvider>
     </ThemeProvider>
   );
