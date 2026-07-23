@@ -1,65 +1,31 @@
-import { STORAGE_KEYS } from "@/constants/storage";
+import { authStore } from "@/store/auth-store";
 
 export const TokenStorage = {
   getAccessToken() {
-    if (typeof window === "undefined") return null;
-
-    return localStorage.getItem(
-      STORAGE_KEYS.ACCESS_TOKEN
-    );
+    return authStore.getAccessToken();
   },
 
   getRefreshToken() {
-    if (typeof window === "undefined") return null;
-
-    return localStorage.getItem(
-      STORAGE_KEYS.REFRESH_TOKEN
-    );
+    return authStore.getRefreshToken();
   },
 
   getUser() {
-    if (typeof window === "undefined") return null;
-
-    return localStorage.getItem(
-      STORAGE_KEYS.USER
-    );
+    return authStore.getUser();
   },
 
-  setTokens(
+  setSession(
     accessToken: string,
-    refreshToken: string
+    refreshToken: string,
+    user: Parameters<typeof authStore.setSession>[2]
   ) {
-    localStorage.setItem(
-      STORAGE_KEYS.ACCESS_TOKEN,
-      accessToken
-    );
-
-    localStorage.setItem(
-      STORAGE_KEYS.REFRESH_TOKEN,
-      refreshToken
-    );
-  },
-
-  setUser(user: unknown) {
-    localStorage.setItem(
-      STORAGE_KEYS.USER,
-      JSON.stringify(user)
-    );
+    authStore.setSession(accessToken, refreshToken, user);
   },
 
   clear() {
-    localStorage.removeItem(
-      STORAGE_KEYS.ACCESS_TOKEN
-    );
-
-    localStorage.removeItem(
-      STORAGE_KEYS.REFRESH_TOKEN
-    );
-
-    localStorage.removeItem(STORAGE_KEYS.USER);
+    authStore.clearSession();
   },
 
   isAuthenticated() {
-    return !!this.getAccessToken();
+    return authStore.isAuthenticated();
   },
 };

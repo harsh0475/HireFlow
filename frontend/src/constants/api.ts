@@ -10,4 +10,18 @@ export const API = {
     RESET_PASSWORD: "/auth/reset-password",
     CHANGE_PASSWORD: "/auth/change-password",
   },
+
+  USERS: {
+    ME: "/users/me",
+  },
+
+  COMPANIES: "/companies",
+
+  JOBS: "/jobs",
+
+  INTERVIEWS: "/interviews",
+
+  APPLICATIONS: "/applications",
+
+  CANDIDATES: "/candidates",
 } as const;

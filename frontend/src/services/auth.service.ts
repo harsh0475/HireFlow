@@ -36,6 +36,10 @@ const AuthService = {
       refreshToken,
     });
   },
+
+  me() {
+    return api.get(API.USERS.ME);
+  },
 };
 
 export default AuthService;

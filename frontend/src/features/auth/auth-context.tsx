@@ -2,85 +2,70 @@
 
 import {
   createContext,
+  ReactNode,
   useContext,
   useEffect,
   useMemo,
   useState,
-  ReactNode,
 } from "react";
 
-import { TokenStorage } from "@/lib/auth";
-import {
-  LoginResponse,
-  User,
-} from "@/types/auth";
+import { LoginResponse } from "@/types/auth";
+import { authStore } from "@/store/auth-store";
 
 interface AuthContextType {
-  user: User | null;
+  user: ReturnType<typeof authStore.getUser>;
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  login: (response: LoginResponse) => void;
-  logout: () => void;
+  login(data: LoginResponse): void;
+  logout(): void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
 
-interface Props {
-  children: ReactNode;
-}
-
 export function AuthProvider({
   children,
-}: Props) {
-  const [user, setUser] = useState<User | null>(null);
+}: {
+  children: ReactNode;
+}) {
+  const [, forceUpdate] = useState(0);
 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("hireflow_user");
-
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const unsubscribe = authStore.subscribe(() =>
+      forceUpdate((v) => v + 1)
+    );
 
     setIsLoading(false);
+
+    return unsubscribe;
   }, []);
 
-  const login = (response: LoginResponse) => {
-    TokenStorage.setTokens(
-      response.accessToken,
-      response.refreshToken
-    );
-
-    localStorage.setItem(
-      "hireflow_user",
-      JSON.stringify(response.user)
-    );
-
-    setUser(response.user);
-  };
-
-  const logout = () => {
-    TokenStorage.clear();
-
-    localStorage.removeItem("hireflow_user");
-
-    setUser(null);
-  };
-
-  const value = useMemo(
+  const value = useMemo<AuthContextType>(
     () => ({
-      user,
-      isLoading,
-      login,
-      logout,
+      user: authStore.getUser(),
+
       isAuthenticated:
-        !!user && TokenStorage.isAuthenticated(),
+        authStore.isAuthenticated(),
+
+      isLoading,
+
+      login(response) {
+        authStore.setSession(
+          response.accessToken,
+          response.refreshToken,
+          response.user
+        );
+      },
+
+      logout() {
+        authStore.clearSession();
+      },
     }),
-    [user, isLoading]
+    [isLoading]
   );
 
   return (
@@ -95,7 +80,7 @@ export function useAuth() {
 
   if (!context) {
     throw new Error(
-      "useAuth must be used inside AuthProvider."
+      "useAuth must be used within AuthProvider."
     );
   }
 
