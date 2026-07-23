@@ -6,6 +6,7 @@ export const API = {
     REGISTER: "/auth/register",
     REFRESH: "/auth/refresh",
     LOGOUT: "/auth/logout",
+    LOGOUT_ALL: "/auth/logout-all",
     FORGOT_PASSWORD: "/auth/forgot-password",
     RESET_PASSWORD: "/auth/reset-password",
     CHANGE_PASSWORD: "/auth/change-password",
@@ -19,9 +20,19 @@ export const API = {
 
   JOBS: "/jobs",
 
-  INTERVIEWS: "/interviews",
-
   APPLICATIONS: "/applications",
 
+  INTERVIEWS: "/interviews",
+
   CANDIDATES: "/candidates",
+
+  RECRUITERS: "/recruiters",
+
+  DASHBOARD: "/dashboard",
+
+  NOTIFICATIONS: "/notifications",
+
+  FILES: "/files",
+
+  ADMIN: "/admin",
 } as const;

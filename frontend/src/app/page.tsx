@@ -1,26 +1,46 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+import { useAuth } from "@/hooks/use-auth";
+
 export default function HomePage() {
+  const router = useRouter();
+
+  const { isLoading, isAuthenticated, user } = useAuth();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
+      router.replace("/login");
+      return;
+    }
+
+    switch (user?.role) {
+      case "ADMIN":
+        router.replace("/admin");
+        break;
+
+      case "RECRUITER":
+        router.replace("/recruiter");
+        break;
+
+      case "CANDIDATE":
+        router.replace("/candidate");
+        break;
+
+      default:
+        router.replace("/login");
+    }
+  }, [isLoading, isAuthenticated, user, router]);
+
   return (
     <main className="flex min-h-screen items-center justify-center">
-      <div className="space-y-4 text-center">
-        <h1 className="text-5xl font-bold tracking-tight">
-          HireFlow
-        </h1>
-
-        <p className="text-muted-foreground text-lg">
-          Enterprise Recruitment Management System
-        </p>
-
-        <div className="rounded-lg border p-6">
-          <p className="font-medium">
-            Frontend Foundation Initialized Successfully
-          </p>
-
-          <p className="mt-2 text-sm text-muted-foreground">
-            Next.js 16 • React 19 • Tailwind v4 • shadcn/ui •
-            TanStack Query • Axios
-          </p>
-        </div>
-      </div>
+      <p className="text-muted-foreground">
+        Loading...
+      </p>
     </main>
   );
 }

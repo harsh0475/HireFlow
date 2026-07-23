@@ -10,14 +10,22 @@ class AuthStore {
   private listeners = new Set<Listener>();
 
   constructor() {
-    if (typeof window !== "undefined") {
-      this.accessToken = localStorage.getItem("hireflow_access_token");
-      this.refreshToken = localStorage.getItem("hireflow_refresh_token");
+    this.restoreSession();
+  }
 
-      const storedUser = localStorage.getItem("hireflow_user");
+  private restoreSession() {
+    if (typeof window === "undefined") return;
 
-      if (storedUser) {
-        this.user = JSON.parse(storedUser);
+    this.accessToken = localStorage.getItem("hireflow_access_token");
+    this.refreshToken = localStorage.getItem("hireflow_refresh_token");
+
+    const storedUser = localStorage.getItem("hireflow_user");
+
+    if (storedUser) {
+      try {
+        this.user = JSON.parse(storedUser) as User;
+      } catch {
+        this.user = null;
       }
     }
   }
@@ -26,7 +34,7 @@ class AuthStore {
     this.listeners.add(listener);
 
     return () => {
-        this.listeners.delete(listener);
+      this.listeners.delete(listener);
     };
   }
 
@@ -34,20 +42,20 @@ class AuthStore {
     this.listeners.forEach((listener) => listener());
   }
 
-  getAccessToken() {
+  getAccessToken(): string | null {
     return this.accessToken;
   }
 
-  getRefreshToken() {
+  getRefreshToken(): string | null {
     return this.refreshToken;
   }
 
-  getUser() {
+  getUser(): User | null {
     return this.user;
   }
 
-  isAuthenticated() {
-    return !!this.accessToken;
+  isAuthenticated(): boolean {
+    return this.accessToken !== null;
   }
 
   setSession(
@@ -59,9 +67,11 @@ class AuthStore {
     this.refreshToken = refreshToken;
     this.user = user;
 
-    localStorage.setItem("hireflow_access_token", accessToken);
-    localStorage.setItem("hireflow_refresh_token", refreshToken);
-    localStorage.setItem("hireflow_user", JSON.stringify(user));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("hireflow_access_token", accessToken);
+      localStorage.setItem("hireflow_refresh_token", refreshToken);
+      localStorage.setItem("hireflow_user", JSON.stringify(user));
+    }
 
     this.notify();
   }
@@ -71,10 +81,17 @@ class AuthStore {
     this.refreshToken = null;
     this.user = null;
 
-    localStorage.removeItem("hireflow_access_token");
-    localStorage.removeItem("hireflow_refresh_token");
-    localStorage.removeItem("hireflow_user");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("hireflow_access_token");
+      localStorage.removeItem("hireflow_refresh_token");
+      localStorage.removeItem("hireflow_user");
+    }
 
+    this.notify();
+  }
+
+  reload() {
+    this.restoreSession();
     this.notify();
   }
 }

@@ -1,3 +1,1 @@
-import { useAuth } from "@/features/auth/auth-context";
-
-export default useAuth;
+export { useAuth } from "@/features/auth/auth-context";

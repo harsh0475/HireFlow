@@ -9,16 +9,17 @@ import {
   useState,
 } from "react";
 
-import { LoginResponse } from "@/types/auth";
+import { LoginResponse, User } from "@/types/auth";
 import { authStore } from "@/store/auth-store";
 
 interface AuthContextType {
-  user: ReturnType<typeof authStore.getUser>;
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 
   login(data: LoginResponse): void;
   logout(): void;
+  reload(): void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(
@@ -31,13 +32,14 @@ export function AuthProvider({
   children: ReactNode;
 }) {
   const [, forceUpdate] = useState(0);
-
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = authStore.subscribe(() =>
-      forceUpdate((v) => v + 1)
-    );
+    authStore.reload();
+
+    const unsubscribe = authStore.subscribe(() => {
+      forceUpdate((v) => v + 1);
+    });
 
     setIsLoading(false);
 
@@ -48,21 +50,24 @@ export function AuthProvider({
     () => ({
       user: authStore.getUser(),
 
-      isAuthenticated:
-        authStore.isAuthenticated(),
+      isAuthenticated: authStore.isAuthenticated(),
 
       isLoading,
 
-      login(response) {
+      login(data: LoginResponse) {
         authStore.setSession(
-          response.accessToken,
-          response.refreshToken,
-          response.user
+          data.accessToken,
+          data.refreshToken,
+          data.user
         );
       },
 
       logout() {
         authStore.clearSession();
+      },
+
+      reload() {
+        authStore.reload();
       },
     }),
     [isLoading]
