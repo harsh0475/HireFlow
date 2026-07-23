@@ -31,6 +31,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.hireflow.mapper.UserMapper;
 
 import java.time.LocalDateTime;
 
@@ -47,6 +48,7 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
@@ -76,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.builder()
                 .accessToken(jwtService.generateAccessToken(principal))
                 .refreshToken(refreshToken.getToken())
+                .user(userMapper.toResponse(user))
                 .message("Registration successful.")
                 .build();
     }
@@ -101,6 +104,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.builder()
                 .accessToken(jwtService.generateAccessToken(principal))
                 .refreshToken(refreshToken.getToken())
+                .user(userMapper.toResponse(user))
                 .message("Login successful.")
                 .build();
     }
@@ -126,6 +130,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.builder()
                 .accessToken(jwtService.generateAccessToken(principal))
                 .refreshToken(newRefreshToken.getToken())
+                .user(userMapper.toResponse(user))
                 .message("Token refreshed successfully.")
                 .build();
     }

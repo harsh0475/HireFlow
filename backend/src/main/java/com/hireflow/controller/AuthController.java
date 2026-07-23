@@ -43,12 +43,20 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Validation failed", content = @Content)
     })
     @PostMapping("/register")
-    public AuthResponse register(
+    public ResponseEntity<ApiResponse<AuthResponse>> register(
             @Valid @RequestBody RegisterRequest request,
             @Parameter(hidden = true)
             @RequestHeader(value = "User-Agent", required = false) String userAgent) {
 
-        return authService.register(request, userAgent);
+        AuthResponse response = authService.register(request, userAgent);
+
+        return ResponseEntity.ok(
+                ApiResponse.<AuthResponse>builder()
+                        .success(true)
+                        .message("Registration successful.")
+                        .data(response)
+                        .build()
+        );
     }
 
     @Operation(
@@ -61,12 +69,20 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Validation failed", content = @Content)
     })
     @PostMapping("/login")
-    public AuthResponse login(
+    public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request,
             @Parameter(hidden = true)
             @RequestHeader(value = "User-Agent", required = false) String userAgent) {
 
-        return authService.login(request, userAgent);
+        AuthResponse response = authService.login(request, userAgent);
+
+        return ResponseEntity.ok(
+                ApiResponse.<AuthResponse>builder()
+                        .success(true)
+                        .message("Login successful.")
+                        .data(response)
+                        .build()
+        );
     }
 
     @Operation(
@@ -142,9 +158,6 @@ public class AuthController {
             summary = "Forgot password",
             description = "Sends a password reset email if the account exists."
     )
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Password reset email processed")
-    })
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<Void>> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequest request) {
@@ -163,10 +176,6 @@ public class AuthController {
             summary = "Reset password",
             description = "Resets the password using a valid password reset token."
     )
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Password reset successfully"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid or expired reset token", content = @Content)
-    })
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<Void>> resetPassword(
             @Valid @RequestBody ResetPasswordRequest request) {
@@ -186,10 +195,6 @@ public class AuthController {
             summary = "Change password",
             description = "Changes the password of the authenticated user."
     )
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Password changed successfully"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
-    })
     @PostMapping("/change-password")
     public ResponseEntity<ApiResponse<Void>> changePassword(
             @Valid @RequestBody ChangePasswordRequest request,
