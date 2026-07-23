@@ -79,7 +79,6 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(jwtService.generateAccessToken(principal))
                 .refreshToken(refreshToken.getToken())
                 .user(userMapper.toResponse(user))
-                .message("Registration successful.")
                 .build();
     }
 
@@ -105,7 +104,6 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(jwtService.generateAccessToken(principal))
                 .refreshToken(refreshToken.getToken())
                 .user(userMapper.toResponse(user))
-                .message("Login successful.")
                 .build();
     }
 
@@ -131,7 +129,6 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(jwtService.generateAccessToken(principal))
                 .refreshToken(newRefreshToken.getToken())
                 .user(userMapper.toResponse(user))
-                .message("Token refreshed successfully.")
                 .build();
     }
 
