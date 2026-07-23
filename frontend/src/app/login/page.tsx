@@ -52,8 +52,13 @@ export default function LoginPage() {
       const response = await AuthService.login(data);
 
       login(response.data.data);
+      console.log("Access Token:", localStorage.getItem("hireflow_access_token"));
+      console.log("User:", localStorage.getItem("hireflow_user"));
 
       toast.success("Login successful.");
+
+      console.log(response.data.data.user.role);
+      console.log(getDefaultRoute(response.data.data.user.role));
 
       router.replace(
         getDefaultRoute(response.data.data.user.role)

@@ -31,7 +31,7 @@ export function AuthProvider({
 }: {
   children: ReactNode;
 }) {
-  const [, forceUpdate] = useState(0);
+  const [version, forceUpdate] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -46,11 +46,14 @@ export function AuthProvider({
     return unsubscribe;
   }, []);
 
+  const user = authStore.getUser();
+  const isAuthenticated = authStore.isAuthenticated();
+
   const value = useMemo<AuthContextType>(
     () => ({
-      user: authStore.getUser(),
+      user,
 
-      isAuthenticated: authStore.isAuthenticated(),
+      isAuthenticated,
 
       isLoading,
 
@@ -70,7 +73,7 @@ export function AuthProvider({
         authStore.reload();
       },
     }),
-    [isLoading]
+    [user, isAuthenticated, isLoading, version]
   );
 
   return (

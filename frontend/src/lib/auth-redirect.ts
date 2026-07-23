@@ -3,13 +3,13 @@ import { User } from "@/types/auth";
 export function getDefaultRoute(role: User["role"]): string {
   switch (role) {
     case "ADMIN":
-      return "/admin";
+      return "/dashboard/admin";
 
     case "RECRUITER":
-      return "/recruiter";
+      return "/dashboard/recruiter";
 
     case "CANDIDATE":
-      return "/candidate";
+      return "/dashboard/candidate";
 
     default:
       return "/";

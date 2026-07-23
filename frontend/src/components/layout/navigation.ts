@@ -26,7 +26,7 @@ export const navigation: Record<UserRole, NavigationItem[]> = {
   CANDIDATE: [
     {
       title: "Dashboard",
-      href: "/candidate",
+      href: "/dashboard/candidate",
       icon: LayoutDashboard,
     },
     {
@@ -59,7 +59,7 @@ export const navigation: Record<UserRole, NavigationItem[]> = {
   RECRUITER: [
     {
       title: "Dashboard",
-      href: "/recruiter",
+      href: "/dashboard/recruiter",
       icon: LayoutDashboard,
     },
     {
@@ -84,7 +84,7 @@ export const navigation: Record<UserRole, NavigationItem[]> = {
     },
     {
       title: "Candidates",
-      href: "/candidates",
+      href: "/dashboard/candidates",
       icon: Users,
     },
     {
@@ -97,7 +97,7 @@ export const navigation: Record<UserRole, NavigationItem[]> = {
   ADMIN: [
     {
       title: "Dashboard",
-      href: "/admin",
+      href: "/dashboard/admin",
       icon: LayoutDashboard,
     },
     {

@@ -198,6 +198,7 @@ export default function RegisterPage() {
             <Button
               className="w-full"
               disabled={isSubmitting}
+              onClick={handleSubmit(onSubmit)}
             >
               {isSubmitting && (
                 <Loader2 className="mr-2 size-4 animate-spin" />
